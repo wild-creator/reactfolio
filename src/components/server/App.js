@@ -162,14 +162,20 @@ const App = () => {
     }
   };
 
-  const handleFormSubmit = async (newContact) => {
+  const handleFormSubmit = async (formData) => {
+    const data = new FormData();
+    Object.keys(formData).forEach((key) => {
+      data.append(key, formData[key]);
+    });
+    console.log(formData);
+
     if (editContact) {
-      await handleEdit({ ...editContact, ...newContact });
+      await handleEdit(editContact._id, data);
     } else {
       try {
         const response = await axios.post(
           `${window.location.origin}/api/user`,
-          newContact,
+          data,
           {
             headers: {
               "Content-Type": "multipart/form-data",
@@ -184,11 +190,11 @@ const App = () => {
     }
   };
 
-  const handleEdit = async (updatedContact) => {
+  const handleEdit = async (id, updatedData) => {
     try {
       const response = await axios.put(
-        `${window.location.origin}/api/user/${updatedContact._id}`,
-        updatedContact,
+        `${window.location.origin}/api/user/${id}`,
+        updatedData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -197,13 +203,12 @@ const App = () => {
       );
       setContacts((prevContacts) =>
         prevContacts.map((contact) =>
-          contact._id === updatedContact._id ? response.data : contact
+          contact._id === id ? response.data : contact
         )
       );
       setEditContact(null);
       setShowForm(false);
     } catch (error) {
-      alert("No edits were made");
       console.error("Error editing contact:", error);
     }
   };
@@ -220,7 +225,7 @@ const App = () => {
   };
 
   const openForm = (contact = null) => {
-    alert("Feel free to use html tags to make your contact-card better");
+    alert("Feel free to use HTML tags to make your contact card better");
     setEditContact(contact);
     setShowForm(true);
   };
@@ -237,7 +242,7 @@ const App = () => {
               key={contact._id}
               contact={contact}
               onEdit={() => openForm(contact)}
-              onDelete={handleDelete}
+              onDelete={() => handleDelete(contact._id)}
             />
           ))
         )}
