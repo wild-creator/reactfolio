@@ -16,5 +16,16 @@
       "src": "/(.*)",
       "dest": "/src/server.js"
     }
+  ],
+  "headers": [
+    {
+      "source": "/api/user",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://reactfolio-jljfwbs9r-coderfavexs-projects.vercel.app"
+        }
+      ]
+    }
   ]
 }
