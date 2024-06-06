@@ -167,6 +167,7 @@ const App = () => {
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
+    console.log(data)
 
     if (editContact) {
       await handleEdit(editContact._id, data);
