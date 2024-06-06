@@ -192,7 +192,7 @@ const App = () => {
   const handleEdit = async (id, updatedData) => {
     try {
       const response = await axios.put(
-        `h${process.env.REACT_APP_API_URL}/api/user/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/user/${id}`,
         updatedData,
         {
           headers: {
