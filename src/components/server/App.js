@@ -155,7 +155,7 @@ const App = () => {
 
   const fetchContacts = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/user`);
+      const response = await axios.get(`${window.location.origin}/api/user`);
       setContacts(response.data);
     } catch (error) {
       console.error("Error fetching contacts:", error);
@@ -174,7 +174,7 @@ const App = () => {
     } else {
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/user`,
+          `${window.location.origin}/api/user`,
           data,
           {
             headers: {
@@ -193,7 +193,7 @@ const App = () => {
   const handleEdit = async (id, updatedData) => {
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/user/${id}`,
+        `${window.location.origin}/api/user/${id}`,
         updatedData,
         {
           headers: {
@@ -215,7 +215,7 @@ const App = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/user/${id}`);
+      await axios.delete(`${window.location.origin}/api/user/${id}`);
       setContacts((prevContacts) =>
         prevContacts.filter((contact) => contact._id !== id)
       );
