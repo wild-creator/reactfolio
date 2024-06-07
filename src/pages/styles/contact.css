@@ -155,6 +155,7 @@
 	}
 
 	.contact-details {
+		display: block;
 		text-align: left;
 		/* Align text to the left for larger screens */
 	}

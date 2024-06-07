@@ -20,6 +20,7 @@
 .page-content {
 	background-color: white;
 	position: relative;
+	overflow: hidden;
 }
 
 .page-content:before,
