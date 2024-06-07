@@ -9,19 +9,10 @@ const admin = require("firebase-admin");
 const app = express();
 const port = process.env.PORT || 5000;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyATJ8qbTxEOlFKODybTZPB0-uCz1LiH_B4",
-  authDomain: "school-project-31175.firebaseapp.com",
-  projectId: "school-project-31175",
-  storageBucket: "school-project-31175.appspot.com",
-  messagingSenderId: "139080127323",
-  appId: "1:139080127323:web:7ad31885f31869e166807e",
-  measurementId: "G-9WTX5W3Z74"
-};
+var serviceAccount = require("./serviceAccountKey.json");
 
 admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-  // Replace with your Firebase project's storage bucket URL
+  credential: admin.credential.cert(serviceAccount),
   storageBucket: "gs://school-project-31175.appspot.com"
 });
 const bucket = admin.storage().bucket();
