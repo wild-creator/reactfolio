@@ -30,7 +30,7 @@ function ContactCard({ contact, onDelete, onEdit }) {
           <div className="contact-avatar">
             <img
               src={
-                contact.picture != null
+                contact.picture != "" || contact.picture != null
                   ? `${contact.picture}`
                   : defaultImage
               }
@@ -57,6 +57,10 @@ function ContactCard({ contact, onDelete, onEdit }) {
             <p>
               <b style={{ fontWeight: 500 }}>Matric Number: </b>
               <i>{contact.matricNumber}</i>
+            </p>
+            <p>
+              <b style={{ fontWeight: 500 }}>Email: </b>
+              <i>{contact.email}</i>
             </p>
           </div>
         </div>
