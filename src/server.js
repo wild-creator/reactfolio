@@ -4,9 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
-const firebase = require("firebase/app");
-require("firebase/storage");
+const admin = require("firebase-admin");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -21,8 +19,12 @@ const firebaseConfig = {
   measurementId: "G-9WTX5W3Z74"
 };
 
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+  // Replace with your Firebase project's storage bucket URL
+  storageBucket: "gs://school-project-31175.appspot.com"
+});
+const bucket = admin.storage().bucket();
 
 const uri =
   "mongodb+srv://faveejiofor2009:ybffqUz8267uEFY6@portfolio.0ixnpy5.mongodb.net/?retryWrites=true&w=majority&appName=Portfolio";
@@ -133,11 +135,11 @@ app.post("/api/user", upload.single("picture"), async (req, res) => {
   try {
     let pictureUrl = "";
     if (req.file) {
-      const storageRef = storage.ref();
-      const fileRef = storageRef.child(Date.now() + path.extname(req.file.originalname));
-      const snapshot = await fileRef.put(req.file.buffer);
+      const fileName = Date.now() + "_" + req.file.originalname;
+      const fileRef = bucket.file(fileName);
+      const snapshot = await fileRef.save(req.file.buffer);
       console.log("File uploaded successfully:", snapshot);
-      pictureUrl = await fileRef.getDownloadURL();
+      pictureUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
       console.log("File URL:", pictureUrl);
     }
 
@@ -160,10 +162,12 @@ app.put("/api/user/:id", upload.single("picture"), async (req, res) => {
     let pictureUrl = req.body.picture;
 
     if (req.file) {
-      const storageRef = storage.ref();
-      const fileRef = storageRef.child(Date.now() + path.extname(req.file.originalname));
-      await fileRef.put(req.file.buffer);
-      pictureUrl = await fileRef.getDownloadURL();
+      const fileName = Date.now() + "_" + req.file.originalname;
+      const fileRef = bucket.file(fileName);
+      const snapshot = await fileRef.save(req.file.buffer);
+      console.log("File uploaded successfully:", snapshot);
+      pictureUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+      console.log("File URL:", pictureUrl);
     }
 
     const updatedContact = {
