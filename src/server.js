@@ -4,9 +4,25 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+const firebase = require("firebase/app");
+require("firebase/storage");
 
 const app = express();
-const port = process.env.PORT || 5000; // Use the port from environment variables or default to 5000
+const port = process.env.PORT || 5000;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyATJ8qbTxEOlFKODybTZPB0-uCz1LiH_B4",
+  authDomain: "school-project-31175.firebaseapp.com",
+  projectId: "school-project-31175",
+  storageBucket: "school-project-31175.appspot.com",
+  messagingSenderId: "139080127323",
+  appId: "1:139080127323:web:7ad31885f31869e166807e",
+  measurementId: "G-9WTX5W3Z74"
+};
+
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
 
 const uri =
   "mongodb+srv://faveejiofor2009:ybffqUz8267uEFY6@portfolio.0ixnpy5.mongodb.net/?retryWrites=true&w=majority&appName=Portfolio";
@@ -24,14 +40,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'build')));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif/;
@@ -48,7 +56,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
   fileFilter: fileFilter,
 });
@@ -126,9 +134,17 @@ app.get("/api/user", async (req, res) => {
 
 app.post("/api/user", upload.single("picture"), async (req, res) => {
   try {
+    let pictureUrl = "";
+    if (req.file) {
+      const storageRef = storage.ref();
+      const fileRef = storageRef.child(Date.now() + path.extname(req.file.originalname));
+      await fileRef.put(req.file.buffer);
+      pictureUrl = await fileRef.getDownloadURL();
+    }
+
     const newContact = {
       ...req.body,
-      picture: req.file ? `/uploads/${req.file.filename}` : "",
+      picture: pictureUrl
     };
     console.log("Received new contact:", newContact);
     const addedContact = await addContact(newContact);
@@ -142,9 +158,18 @@ app.post("/api/user", upload.single("picture"), async (req, res) => {
 app.put("/api/user/:id", upload.single("picture"), async (req, res) => {
   try {
     const id = req.params.id;
+    let pictureUrl = req.body.picture;
+
+    if (req.file) {
+      const storageRef = storage.ref();
+      const fileRef = storageRef.child(Date.now() + path.extname(req.file.originalname));
+      await fileRef.put(req.file.buffer);
+      pictureUrl = await fileRef.getDownloadURL();
+    }
+
     const updatedContact = {
       ...req.body,
-      picture: req.file ? `/uploads/${req.file.filename}` : req.body.picture,
+      picture: pictureUrl
     };
     console.log("Updating contact with id:", id, updatedContact);
     const result = await updateContact(id, updatedContact);
