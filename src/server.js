@@ -187,6 +187,7 @@ app.put("/api/user/:id", upload.single("picture"), async (req, res) => {
       });
 
       blobStream.on("finish", async () => {
+        await blob.makePublic();
         pictureUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
         const updatedContact = {
           ...req.body,
