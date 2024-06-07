@@ -164,7 +164,7 @@ const App = () => {
 
   const handleFormSubmit = async (newContact) => {
     if (editContact) {
-      await handleEdit({ ...editContact, ...newContact });
+      await handleEdit(editContact._id, { ...editContact, ...newContact });
     } else {
       try {
         const response = await axios.post(
