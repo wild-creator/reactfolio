@@ -31,7 +31,7 @@ function ContactCard({ contact, onDelete, onEdit }) {
             <img
               src={
                 contact.picture != null
-                  ? `${process.env.REACT_APP_API_URL}${contact.picture}`
+                  ? `${contact.picture}`
                   : defaultImage
               }
               alt={contact.fullName}
