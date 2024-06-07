@@ -9,6 +9,7 @@ const admin = require("firebase-admin");
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Replace with your actual service account key path
 var serviceAccount = require("./serviceAccountKey.json");
 
 admin.initializeApp({
@@ -130,17 +131,17 @@ app.post("/api/user", upload.single("picture"), async (req, res) => {
         Date.now() + path.extname(req.file.originalname)
       );
       const blobStream = blob.createWriteStream({
-        resumable: false,
+        metadata: {
+          contentType: req.file.mimetype,
+        },
       });
 
-      blobStream.on("error", (err) => {
-        throw new Error("Blob stream error: " + err.message);
+      blobStream.on("error", (error) => {
+        console.error("Error uploading file:", error);
+        res.status(500).json({ error: error.message });
       });
 
       blobStream.on("finish", async () => {
-        // Make the file publicly accessible
-        await blob.makePublic();
-
         pictureUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
         const newContact = {
           ...req.body,
@@ -175,17 +176,17 @@ app.put("/api/user/:id", upload.single("picture"), async (req, res) => {
         Date.now() + path.extname(req.file.originalname)
       );
       const blobStream = blob.createWriteStream({
-        resumable: false,
+        metadata: {
+          contentType: req.file.mimetype,
+        },
       });
 
-      blobStream.on("error", (err) => {
-        throw new Error("Blob stream error: " + err.message);
+      blobStream.on("error", (error) => {
+        console.error("Error uploading file:", error);
+        res.status(500).json({ error: error.message });
       });
 
       blobStream.on("finish", async () => {
-        // Make the file publicly accessible
-        await blob.makePublic();
-
         pictureUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
         const updatedContact = {
           ...req.body,
