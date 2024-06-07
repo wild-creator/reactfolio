@@ -162,20 +162,14 @@ const App = () => {
     }
   };
 
-  const handleFormSubmit = async (formData) => {
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key]);
-    });
-    console.log(formData);
-
+  const handleFormSubmit = async (newContact) => {
     if (editContact) {
-      await handleEdit(editContact._id, data);
+      await handleEdit({ ...editContact, ...newContact });
     } else {
       try {
         const response = await axios.post(
           `${window.location.origin}/api/user`,
-          data,
+          newContact,
           {
             headers: {
               "Content-Type": "multipart/form-data",
