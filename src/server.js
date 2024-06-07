@@ -37,9 +37,6 @@ const client = new MongoClient(uri, {
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '..', 'build')));
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif/;
@@ -138,8 +135,10 @@ app.post("/api/user", upload.single("picture"), async (req, res) => {
     if (req.file) {
       const storageRef = storage.ref();
       const fileRef = storageRef.child(Date.now() + path.extname(req.file.originalname));
-      await fileRef.put(req.file.buffer);
+      const snapshot = await fileRef.put(req.file.buffer);
+      console.log("File uploaded successfully:", snapshot);
       pictureUrl = await fileRef.getDownloadURL();
+      console.log("File URL:", pictureUrl);
     }
 
     const newContact = {
