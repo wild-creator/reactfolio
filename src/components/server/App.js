@@ -163,6 +163,7 @@ const App = () => {
   };
 
   const handleFormSubmit = async (newContact) => {
+    console.log(process.env.PORT);
     if (editContact) {
       await handleEdit({ ...editContact, ...newContact });
     } else {
