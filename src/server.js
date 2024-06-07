@@ -13,7 +13,7 @@ var serviceAccount = require("./serviceAccountKey.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: "gs://school-project-31175.appspot.com"
+  storageBucket: "gs://school-project-31175.appspot.com",
 });
 const bucket = admin.storage().bucket();
 
@@ -126,21 +126,39 @@ app.post("/api/user", upload.single("picture"), async (req, res) => {
   try {
     let pictureUrl = "";
     if (req.file) {
-      const fileName = Date.now() + "_" + req.file.originalname;
-      const fileRef = bucket.file(fileName);
-      const snapshot = await fileRef.save(req.file.buffer);
-      console.log("File uploaded successfully:", snapshot);
-      pictureUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-      console.log("File URL:", pictureUrl);
-    }
+      const blob = bucket.file(
+        Date.now() + path.extname(req.file.originalname)
+      );
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+      });
 
-    const newContact = {
-      ...req.body,
-      picture: pictureUrl
-    };
-    console.log("Received new contact:", newContact);
-    const addedContact = await addContact(newContact);
-    res.status(201).json(addedContact);
+      blobStream.on("error", (err) => {
+        throw new Error("Blob stream error: " + err.message);
+      });
+
+      blobStream.on("finish", async () => {
+        // Make the file publicly accessible
+        await blob.makePublic();
+
+        pictureUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+        const newContact = {
+          ...req.body,
+          picture: pictureUrl,
+        };
+        const addedContact = await addContact(newContact);
+        res.status(201).json(addedContact);
+      });
+
+      blobStream.end(req.file.buffer);
+    } else {
+      const newContact = {
+        ...req.body,
+        picture: pictureUrl,
+      };
+      const addedContact = await addContact(newContact);
+      res.status(201).json(addedContact);
+    }
   } catch (error) {
     console.error("POST /api/user error:", error);
     res.status(500).json({ error: error.message });
@@ -153,24 +171,46 @@ app.put("/api/user/:id", upload.single("picture"), async (req, res) => {
     let pictureUrl = req.body.picture;
 
     if (req.file) {
-      const fileName = Date.now() + "_" + req.file.originalname;
-      const fileRef = bucket.file(fileName);
-      const snapshot = await fileRef.save(req.file.buffer);
-      console.log("File uploaded successfully:", snapshot);
-      pictureUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-      console.log("File URL:", pictureUrl);
-    }
+      const blob = bucket.file(
+        Date.now() + path.extname(req.file.originalname)
+      );
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+      });
 
-    const updatedContact = {
-      ...req.body,
-      picture: pictureUrl
-    };
-    console.log("Updating contact with id:", id, updatedContact);
-    const result = await updateContact(id, updatedContact);
-    if (result) {
-      res.json(result);
+      blobStream.on("error", (err) => {
+        throw new Error("Blob stream error: " + err.message);
+      });
+
+      blobStream.on("finish", async () => {
+        // Make the file publicly accessible
+        await blob.makePublic();
+
+        pictureUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+        const updatedContact = {
+          ...req.body,
+          picture: pictureUrl,
+        };
+        const result = await updateContact(id, updatedContact);
+        if (result) {
+          res.json(result);
+        } else {
+          res.status(404).json({ error: "Contact not found" });
+        }
+      });
+
+      blobStream.end(req.file.buffer);
     } else {
-      res.status(404).json({ error: "Contact not found" });
+      const updatedContact = {
+        ...req.body,
+        picture: pictureUrl,
+      };
+      const result = await updateContact(id, updatedContact);
+      if (result) {
+        res.json(result);
+      } else {
+        res.status(404).json({ error: "Contact not found" });
+      }
     }
   } catch (error) {
     console.error("PUT /api/user/:id error:", error);
