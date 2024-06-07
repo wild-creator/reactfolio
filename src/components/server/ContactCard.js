@@ -30,7 +30,7 @@ function ContactCard({ contact, onDelete, onEdit }) {
           <div className="contact-avatar">
             <img
               src={
-                contact.picture != ""
+                contact.picture.trim() !== ""
                   ? `${contact.picture}`
                   : defaultImage
               }
