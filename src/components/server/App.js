@@ -162,7 +162,13 @@ const App = () => {
     }
   };
 
-  const handleFormSubmit = async (newContact) => {
+  const handleFormSubmit = async (formData) => {
+    const data = new FormData();
+    Object.keys(formData).forEach((key) => {
+      data.append(key, formData[key]);
+    });
+    console.log(formData);
+
     if (editContact) {
       await handleEdit(editContact._id, data);
     } else {
