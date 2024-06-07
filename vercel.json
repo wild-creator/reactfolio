@@ -8,13 +8,19 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "build" }
+      "config": {
+        "distDir": "build"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "/src/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/build/$1"
     }
   ]
 }

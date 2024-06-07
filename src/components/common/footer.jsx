@@ -29,7 +29,7 @@ const Footer = () => {
 
 				<div className="footer-credits">
 					<div className="footer-credits-text">
-						© 2023 Favitech Corp. All Rights Reserved.
+						© 2024 Favitech Corp. All Rights Reserved.
 					</div>
 				</div>
 			</div>
