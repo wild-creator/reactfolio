@@ -105,6 +105,13 @@ async function updateContact(id, updatedContact) {
 
 async function deleteContact(id) {
   try {
+    const contact = await collection.findOne({ _id: new ObjectId(id) });
+    if (contact && contact.picture) {
+      const fileName = contact.picture.split("/").pop();
+      const file = bucket.file(fileName);
+      await file.delete();
+    }
+
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
     return result.deletedCount > 0;
   } catch (error) {
